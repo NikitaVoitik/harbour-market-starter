@@ -6,6 +6,8 @@ const filters = document.querySelector(".filters"); // module scope: main.js has
 const count = document.querySelector(".filter-count");
 const savedCount = document.querySelector(".saved-count");
 const search = document.querySelector("#vendor-search");
+const errorMessage = document.querySelector(".load-error p");
+const retry = document.querySelector(".retry");
 
 // Data in, element out
 function card(stall) {
@@ -22,6 +24,9 @@ function card(stall) {
   li.querySelector(".blurb").textContent = stall.blurb;
   li.querySelector(".price").textContent = stall.price === 0 ? "free" : `from €${stall.price}`;
   li.querySelector(".badge").hidden = !stall.soldOut;
+  li.querySelector(".rating").textContent = stall.reviewCount > 0
+    ? `★ ${stall.rating} · ${stall.reviewCount} ${stall.reviewCount === 1 ? "review" : "reviews"}`
+    : "no reviews yet";
 
   const isSaved = state.saved.has(stall.id);
   const save = li.querySelector(".save");
@@ -34,12 +39,18 @@ function card(stall) {
 // Draws everything that depends on state. Safe to call any number of times.
 export function render() {
   const visible = visibleStalls();
+  errorMessage.textContent = state.status === "error" ? state.error : "";
+  retry.hidden = state.status !== "error";
 
   if (state.status == "loading") {
-    count.textContent = "Loading...";
+    count.textContent = "Loading the vendors…";
+    const loading = document.createElement("li");
+    loading.className = "empty";
+    loading.textContent = "Loading…";
+    list.replaceChildren(loading);
   } else if (state.status == "error") {
     count.textContent = "Error loading stalls.";
-    count.role = "alert";
+    list.replaceChildren();
   }
 
   if (state.status == "idle" || state.status == "success") {

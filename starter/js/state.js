@@ -7,6 +7,7 @@ export const state = {
   query: "",        // what's typed in the search box
   saved: new Set(), // ids of the ♥ stalls
   status: "idle",   // "idle", "loading", "success", "error"
+  error: "",
   stalls: []
 };
 

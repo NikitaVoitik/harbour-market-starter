@@ -8,6 +8,12 @@ import { getJSON, describe } from "./api.js";
 
 const filters = document.querySelector(".filters");
 const list = document.querySelector(".vendor-list");
+const status = document.querySelector(".status");
+
+document.querySelector(".retry").addEventListener("click", async () => {
+  status.focus();
+  await loadStalls();
+});
 
 // Every change goes through here: draw, then remember
 function update() {
@@ -36,6 +42,7 @@ list.addEventListener("click", (event) => {
 });
 
 async function loadStalls() {
+  state.error = "";
   state.status = "loading";
   render();
 
@@ -44,6 +51,7 @@ async function loadStalls() {
     state.stalls = response;
     state.status = "success";
   } catch (error) {
+    console.error(error);
     state.error = describe(error);
     state.status = "error";
   }
