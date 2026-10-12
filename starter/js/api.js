@@ -33,6 +33,8 @@ export async function request(method, path, data, options = {}) {
     body: data !== undefined ? JSON.stringify(data) : undefined,
   });
 
+  if (request.status === 204) return null;
+
   const body = await request.json();
 
   if (!request.ok) {
