@@ -10,7 +10,7 @@ export const API = "https://harbour-api.lopin.me/nikitavoitik/api";
 // body, so callers can tell a 404 from a 422 and read body.fields.
 export class HttpError extends Error {
   constructor(response, body) {
-    super(`HTTP ${response.status} ${response.statusText}`);
+    super(`HTTP ${response.status}: ${body?.message ?? response.statusText}`);
     this.response = response;
     this.body = body;
     this.name = "HttpError";
@@ -27,7 +27,7 @@ export async function request(method, path, data, options = {}) {
     method,
     headers: {
       Accept: "application/json",
-      "Content-Type": "application/json",
+      ...(data !== undefined && { "Content-Type": "application/json" }),
       ...options.headers
     },
     body: data !== undefined ? JSON.stringify(data) : undefined,
@@ -35,13 +35,15 @@ export async function request(method, path, data, options = {}) {
 
   if (request.status === 204) return null;
 
-  const body = await request.json();
-
   if (!request.ok) {
+    const body = await request.json().catch((error) => {
+      if (error.name === "SyntaxError") return null;
+      throw error;
+    });
     throw new HttpError(request, body);
   }
 
-  return body;
+  return await request.json();
 }
 
 export const getJSON = (path, options) =>
