@@ -8,15 +8,15 @@ export const state = {
   saved: new Set(), // ids of the ♥ stalls
   status: "idle",   // "idle", "loading", "success", "error"
   error: "",
-  stalls: []
+  stalls: [],
+  hasLoaded: false,
+  resultsQuery: "", // the query used for the last successful results
 };
 
 // Derived, never stored: what should be on screen right now?
 export function visibleStalls() {
-  const q = state.query.trim().toLowerCase();
-  return state.stalls
-    .filter((stall) => state.tag === "all" || stall.tag === state.tag)
-    .filter((stall) => stall.name.toLowerCase().includes(q));
+  // Search and tag filtering now happen on the server, including blurbs.
+  return state.stalls;
 }
 
 export function toggleSaved(id) {

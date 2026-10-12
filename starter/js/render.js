@@ -41,30 +41,30 @@ export function render() {
   const visible = visibleStalls();
   errorMessage.textContent = state.status === "error" ? state.error : "";
   retry.hidden = state.status !== "error";
+  list.classList.toggle("search-loading", state.status === "loading");
 
   if (state.status == "loading") {
     count.textContent = "Loading the vendors…";
-    const loading = document.createElement("li");
-    loading.className = "empty";
-    loading.textContent = "Loading…";
-    list.replaceChildren(loading);
   } else if (state.status == "error") {
     count.textContent = "Error loading stalls.";
-    list.replaceChildren();
+  } else {
+    count.textContent = `${visible.length} stalls`;
   }
 
-  if (state.status == "idle" || state.status == "success") {
+  if (state.hasLoaded) {
     if (visible.length) {
       list.replaceChildren(...visible.map(card));
-      count.textContent = `${visible.length} stalls`;
     } else {
       const empty = document.createElement("li");
       empty.className = "empty";
-      empty.textContent = `No stall matches “${state.query}”.`; // textContent: their words stay text
-      count.textContent = "0 stalls";
+      empty.textContent = state.resultsQuery.trim()
+        ? `No stall matches “${state.resultsQuery}”.`
+        : "No stalls match this filter.";
 
       list.replaceChildren(empty);
     }
+  } else {
+    list.replaceChildren();
   }
 
   for (const button of filters.querySelectorAll("button")) {
