@@ -78,7 +78,11 @@ document.querySelector("#vendor-search").addEventListener("input", (event) => {
 });
 
 window.addEventListener("popstate", () => {
+  // Compare the whole search params, not q and tag one by one,
+  // so a new filter only has to be added to searchParams() and readSearchURL()
+  const before = queryString.stringify(searchParams());
   readSearchURL();
+  if (queryString.stringify(searchParams()) === before) return;
   save();
   loadStalls();
 });
