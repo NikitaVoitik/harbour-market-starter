@@ -8,6 +8,7 @@ export const state = {
   saved: new Set(), // ids of the ♥ stalls
   status: "idle",   // "idle", "loading", "success", "error"
   error: "",
+  canRetry: false,  // whether the error is worth a "Try again" button
   stalls: [],
   hasLoaded: false,
   resultsQuery: "", // the query used for the last successful results

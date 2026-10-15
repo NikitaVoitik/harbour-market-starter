@@ -40,7 +40,7 @@ function card(stall) {
 export function render() {
   const visible = visibleStalls();
   errorMessage.textContent = state.status === "error" ? state.error : "";
-  retry.hidden = state.status !== "error";
+  retry.hidden = state.status !== "error" || !state.canRetry;
   list.classList.toggle("search-loading", state.status === "loading");
 
   if (state.status == "loading") {

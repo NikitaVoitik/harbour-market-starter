@@ -4,7 +4,7 @@ import { save, load } from "./storage.js";
 import { render } from "./render.js";
 import { setupMenu } from "./menu.js";
 import { setupTickets } from "./tickets.js";
-import { getJSON, describe } from "./api.js";
+import { getJSON, describe, canRetry } from "./api.js";
 import queryString from "https://esm.sh/query-string@9.5.1?bundle";
 
 const filters = document.querySelector(".filters");
@@ -114,6 +114,7 @@ async function loadStalls() {
     if (signal.aborted || id !== requestId || error.name === "AbortError") return;
     console.error(error);
     state.error = describe(error);
+    state.canRetry = canRetry(error);
     state.status = "error";
   }
 

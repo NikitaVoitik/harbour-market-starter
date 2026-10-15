@@ -55,11 +55,17 @@ export const postJSON = (path, data, options) =>
 export function describe(error) {
   // TODO: an HttpError → "the server answered 503", a TypeError → "no connection"
   if (error instanceof HttpError) {
-    return `the server answered ${error.status}`;
+    return error.body?.message ?? `the server answered ${error.status}`;
   }
   if (error instanceof TypeError) {
     return "no connection";
   }
 
   return "something went wrong";
+}
+
+// Worth trying again? A lost connection or a 5xx might pass next time;
+// a 4xx is the same request, so it fails the same way.
+export function canRetry(error) {
+  return !(error instanceof HttpError) || error.status >= 500;
 }
