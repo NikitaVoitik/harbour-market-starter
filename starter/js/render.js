@@ -70,7 +70,6 @@ export function render() {
   for (const button of filters.querySelectorAll("button")) {
     button.setAttribute("aria-pressed", String(button.dataset.filter === state.tag));
   }
-  // count.textContent = visible.length === state.stalls.length ? "" : `${visible.length} of ${state.stalls.length} stalls`;
   savedCount.textContent = state.saved.size ? `♥ ${state.saved.size} saved` : "";
 
   // Controls are part of the page too: draw them from state
