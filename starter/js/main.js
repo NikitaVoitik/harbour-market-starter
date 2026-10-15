@@ -5,7 +5,6 @@ import { render } from "./render.js";
 import { setupMenu } from "./menu.js";
 import { setupTickets } from "./tickets.js";
 import { getJSON, describe, canRetry } from "./api.js";
-import queryString from "https://esm.sh/query-string@9.5.1?bundle";
 
 const filters = document.querySelector(".filters");
 const list = document.querySelector(".vendor-list");
@@ -15,24 +14,23 @@ let controller;
 let requestId = 0;
 
 function readSearchURL() {
-  const params = queryString.parse(window.location.search);
-  state.query = typeof params.q === "string" ? params.q : "";
-  state.tag = typeof params.tag === "string" && params.tag ? params.tag : "all";
+  const params = new URLSearchParams(window.location.search);
+  state.query = params.get("q") ?? "";
+  state.tag = params.get("tag") || "all";
 }
 
+// Only the filters in use: an empty one would end up in the URL as "q="
 function searchParams() {
-  return {
-    q: state.query.trim() ? state.query : undefined,
-    tag: state.tag !== "all" ? state.tag : undefined,
-  };
+  const params = new URLSearchParams();
+  if (state.query.trim()) params.set("q", state.query);
+  if (state.tag !== "all") params.set("tag", state.tag);
+  return params;
 }
 
 function writeSearchURL() {
-  const url = queryString.stringifyUrl({
-    url: window.location.href,
-    query: searchParams(),
-  });
-  if (url !== window.location.href) {
+  const url = new URL(window.location.href); // keeps the #hash
+  url.search = searchParams();
+  if (url.href !== window.location.href) {
     window.history.pushState(null, "", url);
   }
 }
@@ -80,9 +78,9 @@ document.querySelector("#vendor-search").addEventListener("input", (event) => {
 window.addEventListener("popstate", () => {
   // Compare the whole search params, not q and tag one by one,
   // so a new filter only has to be added to searchParams() and readSearchURL()
-  const before = queryString.stringify(searchParams());
+  const before = searchParams().toString();
   readSearchURL();
-  if (queryString.stringify(searchParams()) === before) return;
+  if (searchParams().toString() === before) return;
   save();
   loadStalls();
 });
@@ -101,7 +99,8 @@ async function loadStalls() {
   controller = new AbortController();
   const signal = controller.signal;
   const query = state.query;
-  const path = queryString.stringifyUrl({ url: "/stalls", query: searchParams() });
+  const search = searchParams().toString();
+  const path = search ? `/stalls?${search}` : "/stalls";
   writeSearchURL();
   state.error = "";
   state.status = "loading";
